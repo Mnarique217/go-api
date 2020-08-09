@@ -2,6 +2,7 @@ package main
 
 import (
 	"encoding/json"
+	"log"
 	"net/http"
 )
 
@@ -37,23 +38,66 @@ func handleGet(w http.ResponseWriter, r *http.Request) (err error) {
 
 	return
 }
-func handlePut(w http.ResponseWriter, r *http.Request) (err error) {
-	len := r.ContentLength
+func handlePut(res http.ResponseWriter, req *http.Request) (err error) {
+	len := req.ContentLength
 	body := make([]byte, len)
-	r.Body.Read(body)
+	req.Body.Read(body)
 	book := Book{}
 	json.Unmarshal(body, &book)
 	books = append(books, book)
-	w.WriteHeader(200)
+	res.WriteHeader(200)
 	return
 }
 
-func handlePost(w http.ResponseWriter, r *http.Request) (err error) {
-	w.WriteHeader(200)
+func handlePost(res http.ResponseWriter, req *http.Request) (err error) {
+
+	param, ok := req.URL.Query()["id"]
+	if !ok || len(param[0]) < 1 {
+		return
+	}
+
+	id := param[0]
+	i := find(id)
+	bookRef := &books[i]
+	log.Println(bookRef)
+
+	len := req.ContentLength
+	body := make([]byte, len)
+	req.Body.Read(body)
+	book := Book{}
+	json.Unmarshal(body, &book)
+
+	bookRef.Title = isValidUpdate(bookRef.Title, book.Title)
+	bookRef.Edition = isValidUpdate(bookRef.Edition, book.Edition)
+	bookRef.Copyright = isValidUpdate(bookRef.Copyright, book.Copyright)
+	bookRef.Language = isValidUpdate(bookRef.Language, book.Language)
+	bookRef.Pages = isValidUpdate(bookRef.Pages, book.Pages)
+	bookRef.Author = isValidUpdate(bookRef.Author, book.Author)
+	bookRef.Publisher = isValidUpdate(bookRef.Publisher, book.Publisher)
+
+	res.WriteHeader(200)
 	return
 }
 
-func handleDelete(w http.ResponseWriter, r *http.Request) (err error) {
-	w.WriteHeader(200)
+func handleDelete(res http.ResponseWriter, req *http.Request) (err error) {
+
+	param, ok := req.URL.Query()["id"]
+
+	if !ok || len(param[0]) < 1 {
+		return
+	}
+
+	id := param[0]
+	i := find(id)
+	books = append(books[:i], books[i+1:]...)
+	res.WriteHeader(200)
 	return
+}
+
+func isValidUpdate(current string, new string) string {
+	if new != "" {
+		return new
+	}
+
+	return current
 }

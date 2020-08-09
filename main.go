@@ -1,6 +1,7 @@
 package main
 
 import (
+	"log"
 	"net/http"
 )
 
@@ -17,6 +18,7 @@ func handler(writer http.ResponseWriter, request *http.Request) {
 	case "DELETE":
 		err = handleDelete(writer, request)
 	}
+	log.Println("Write to csv")
 	writeData("books.csv")
 	if err != nil {
 		http.Error(writer, err.Error(), http.StatusInternalServerError)
@@ -25,6 +27,7 @@ func handler(writer http.ResponseWriter, request *http.Request) {
 }
 
 func main() {
+
 	http.HandleFunc("/book/", handler)
 	http.ListenAndServe("127.0.0.1:8080", nil)
 }
