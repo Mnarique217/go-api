@@ -1,16 +1,30 @@
 package main
 
 import (
-    "fmt"
-    "net/http"
-    "os"
+	"net/http"
 )
 
 func handler(writer http.ResponseWriter, request *http.Request) {
-    fmt.Fprintf(writer, "Hello World, %s!", request.URL.Path[1:])
+	var err error
+	readData("books.csv")
+	switch request.Method {
+	case "GET":
+		err = handleGet(writer, request)
+	case "POST":
+		err = handlePost(writer, request)
+	case "PUT":
+		err = handlePut(writer, request)
+	case "DELETE":
+		err = handleDelete(writer, request)
+	}
+	writeData("books.csv")
+	if err != nil {
+		http.Error(writer, err.Error(), http.StatusInternalServerError)
+		return
+	}
 }
 
 func main() {
-    http.HandleFunc("/", handler)
-    http.ListenAndServe(":"+os.Getenv("PORT"), nil)
+	http.HandleFunc("/book/", handler)
+	http.ListenAndServe("127.0.0.1:8080", nil)
 }
