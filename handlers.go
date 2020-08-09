@@ -6,6 +6,11 @@ import (
 	"net/http"
 )
 
+type result struct {
+	Status  string `json:"status"`
+	Message string `json:"message"`
+}
+
 func find(x string) int {
 	for i, book := range books {
 		if x == book.Id {
@@ -45,7 +50,13 @@ func handlePut(res http.ResponseWriter, req *http.Request) (err error) {
 	book := Book{}
 	json.Unmarshal(body, &book)
 	books = append(books, book)
+
+	answer := result{Status: "correct", Message: "Created correctly"}
+	js, err := json.Marshal(answer)
+
+	res.Header().Set("Content-Type", "application/json")
 	res.WriteHeader(200)
+	res.Write(js)
 	return
 }
 
@@ -75,7 +86,13 @@ func handlePost(res http.ResponseWriter, req *http.Request) (err error) {
 	bookRef.Author = isValidUpdate(bookRef.Author, book.Author)
 	bookRef.Publisher = isValidUpdate(bookRef.Publisher, book.Publisher)
 
+	answer := result{Status: "correct", Message: "Updated correctly"}
+	js, err := json.Marshal(answer)
+
+	res.Header().Set("Content-Type", "application/json")
 	res.WriteHeader(200)
+	res.Write(js)
+
 	return
 }
 
@@ -90,7 +107,13 @@ func handleDelete(res http.ResponseWriter, req *http.Request) (err error) {
 	id := param[0]
 	i := find(id)
 	books = append(books[:i], books[i+1:]...)
+
+	answer := result{Status: "correct", Message: "Deleted correctly"}
+	js, err := json.Marshal(answer)
+
+	res.Header().Set("Content-Type", "application/json")
 	res.WriteHeader(200)
+	res.Write(js)
 	return
 }
 
