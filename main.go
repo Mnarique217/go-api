@@ -3,6 +3,7 @@ package main
 import (
 	"log"
 	"net/http"
+	"os"
 )
 
 func handler(writer http.ResponseWriter, request *http.Request) {
@@ -27,7 +28,6 @@ func handler(writer http.ResponseWriter, request *http.Request) {
 }
 
 func main() {
-
 	http.HandleFunc("/book/", handler)
-	http.ListenAndServe("127.0.0.1:8080", nil)
+	http.ListenAndServe(":"+os.Getenv("PORT"), nil)
 }
