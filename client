@@ -2,6 +2,7 @@ package main
 
 import (
 	"context"
+	"fmt"
 	"log"
 	"time"
 
@@ -17,10 +18,8 @@ func main() {
 	}
 	defer conn.Close()
 	c := pb.NewBookInfoClient(conn)
-
-	/*=======================================*/
-	//					add book
-	/*=======================================*/
+	/*ADD*/
+	actionPerformed("ADD BOOK")
 	ctx, cancel := context.WithTimeout(context.Background(), time.Second)
 	defer cancel()
 	r, err := c.AddBook(ctx, &pb.Book{
@@ -35,51 +34,53 @@ func main() {
 	if err != nil {
 		log.Fatalf("Could not add book: %v", err)
 	}
+	fmt.Println("Result is: ")
+	fmt.Println(r.String())
 
-	/*=======================================*/
-	//					Get book
-	/*=======================================*/
+	/*UPDATE*/
+	actionPerformed("UPDATE BOOK")
+	bookData := &pb.Book{
+		Id:        "1",
+		Title:     "UPDATED TITLE",
+		Edition:   "10th",
+		Copyright: "2052",
+		Language:  "ESPANOL",
+		Pages:     "800",
+		Author:    "MANRIQUE",
+		Publisher: "MANRIQUE"}
+	idToUpdate := &pb.BookID{Value: r.Value}
+	bkUpdate := &pb.BookUpdate{Update: bookData, Id: idToUpdate}
 
-	log.Printf("===============================")
-	log.Printf("GET BOOK BEFORE DELETE ID")
-	log.Printf(r.Value)
+	bookResult, err := c.UpdateBook(ctx, bkUpdate)
+	if err != nil {
+		log.Fatalf("Could not get book: %v", err)
+	}
+	fmt.Println("Result is: ")
+	fmt.Println(bookResult.String())
+
+	/*GET*/
+	actionPerformed("GET BOOK")
 	book1, err := c.GetBook(ctx, &pb.BookID{Value: r.Value})
 	if err != nil {
 		log.Fatalf("Could not get book: %v", err)
 	}
-	log.Printf("Book: ", book1.String())
-	log.Printf(" ")
-	log.Printf(" ")
-	log.Printf(" ")
-	log.Printf("===============================")
+	fmt.Println("Result is: ")
+	fmt.Println(book1.String())
 
-	/*=======================================*/
-	//					Delete book
-	/*=======================================*/
-	log.Printf("DELETE BOOK ID")
-	log.Printf(r.Value)
+	/*DELETE*/
+	actionPerformed("DELETE BOOK")
 	result, err := c.DeleteBook(ctx, &pb.BookID{Value: r.Value})
 	if err != nil {
 		log.Fatalf("Could not delete the book: %v", err)
 	}
-	log.Printf("Result is: ", result.String())
-	log.Printf(" ")
-	log.Printf(" ")
-	log.Printf(" ")
-	log.Printf("===============================")
+	fmt.Println("Result is: ")
+	fmt.Println(result.String())
 
-	/*=======================================*/
-	//					Get book
-	/*=======================================*/
-	log.Printf("GET BOOK ID")
-	log.Printf(r.Value)
-	book, err := c.GetBook(ctx, &pb.BookID{Value: r.Value})
-	if err != nil {
-		log.Fatalf("Could not get book: %v", err)
-	}
-	log.Printf("Book: ", book.String())
-	log.Printf(" ")
-	log.Printf(" ")
-	log.Printf(" ")
-	log.Printf("===============================")
+}
+
+func actionPerformed(title string) {
+	fmt.Println("")
+	fmt.Println("=======================================")
+	fmt.Println("               ", title, "             ")
+	fmt.Println("=======================================")
 }

@@ -2,7 +2,6 @@ package main
 
 import (
 	"context"
-	"log"
 
 	pb "github.com/Mnarique217/go-api/booksapp"
 	"github.com/gofrs/uuid"
@@ -48,12 +47,14 @@ func (server *server) DeleteBook(ctx context.Context, in *pb.BookID) (*pb.Result
 	return &pb.Result{Status: "Correct", Mensaje: "Eliminado correctamente"}, status.New(codes.OK, "").Err()
 }
 
-func (s *server) UpdateBook(ctx context.Context, in *pb.Book) (*pb.Book, error) {
-	value, exists := s.bookMap[in.Id]
+func (s *server) UpdateBook(ctx context.Context, in *pb.BookUpdate) (*pb.Book, error) {
+	_, exists := s.bookMap[in.Id.Value]
 	if exists {
-		log.Printf("===============================")
-		log.Printf("===============================")
-		return value, status.New(codes.OK, "").Err()
+		s.bookMap[in.Id.Value] = in.Update
+		updatedBook, _ := s.bookMap[in.Id.Value]
+		return updatedBook, status.New(codes.OK, "").Err()
+	} else {
+		return nil, status.Errorf(codes.NotFound, "Book does not exist.", "")
 	}
-	return nil, status.Errorf(codes.NotFound, "Book does not exist.", "")
+
 }
