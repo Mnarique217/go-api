@@ -4,7 +4,7 @@ package booksapp;
 service BookInfo {
   rpc addBook(Book) returns (BookID);
   rpc getBook(BookID) returns (Book);
-  rpc updateBook(Book) returns (Book);
+  rpc updateBook(BookUpdate) returns (Book);
   rpc deleteBook(BookID) returns (Result);
 }
 
