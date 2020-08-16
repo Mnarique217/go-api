@@ -5,7 +5,7 @@ service BookInfo {
   rpc addBook(Book) returns (BookID);
   rpc getBook(BookID) returns (Book);
   rpc updateBook(Book) returns (Book);
-  rpc deleteBook(BookID) returns (result);
+  rpc deleteBook(BookID) returns (Result);
 }
 
 message Book {
@@ -19,7 +19,7 @@ message Book {
   string Publisher = 8;
 }
 
-message result {
+message Result {
   string status = 1;
   string mensaje = 2;
 }
