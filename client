@@ -8,6 +8,7 @@ import (
 	"os"
 	"time"
 
+	"github.com/Mnarique217/go-api/booksapp"
 	pb "github.com/Mnarique217/go-api/booksapp"
 	"google.golang.org/grpc"
 )
@@ -16,73 +17,38 @@ var books []Book
 var bookIDs []string
 
 func main() {
+	/* Create conexion*/
 	address := "localhost:8080" //os.Getenv("ADDRESS")
 	conn, err := grpc.Dial(address, grpc.WithInsecure())
 	if err != nil {
 		log.Fatalf("did not connect: %v", err)
 	}
 	defer conn.Close()
-	c := pb.NewBookInfoClient(conn)
-	/*ADD*/
-	actionPerformed("ADD BOOK")
+	conexion := pb.NewBookInfoClient(conn)
 	ctx, cancel := context.WithTimeout(context.Background(), time.Second)
 	defer cancel()
-	r, err := c.AddBook(ctx, &pb.Book{
-		Id:        "1",
-		Title:     "Operating System Concepts",
-		Edition:   "9th",
-		Copyright: "2012",
-		Language:  "ENGLISH",
-		Pages:     "976",
-		Author:    "Abraham Silberschatz",
-		Publisher: "John Wiley & Sons"})
-	if err != nil {
-		log.Fatalf("Could not add book: %v", err)
-	}
-	bookIDs = append(bookIDs, r.Value)
-
-	/*UPDATE*/
-	actionPerformed("UPDATE BOOK")
-	bookData := &pb.Book{
-		Id:        "1",
-		Title:     "UPDATED TITLE",
-		Edition:   "10th",
-		Copyright: "2052",
-		Language:  "ESPANOL",
-		Pages:     "800",
-		Author:    "MANRIQUE",
-		Publisher: "MANRIQUE"}
-	idToUpdate := &pb.BookID{Value: r.Value}
-	bkUpdate := &pb.BookUpdate{Update: bookData, Id: idToUpdate}
-
-	bookResult, err := c.UpdateBook(ctx, bkUpdate)
-	if err != nil {
-		log.Fatalf("Could not get book: %v", err)
-	}
-	fmt.Println("Result is: ")
-	fmt.Println(bookResult.String())
-
-	/*GET*/
-	actionPerformed("GET BOOK")
-	book1, err := c.GetBook(ctx, &pb.BookID{Value: r.Value})
-	if err != nil {
-		log.Fatalf("Could not get book: %v", err)
-	}
-	fmt.Println("Result is: ")
-	fmt.Println(book1.String())
-
-	/*DELETE*/
-	actionPerformed("DELETE BOOK")
-	result, err := c.DeleteBook(ctx, &pb.BookID{Value: r.Value})
-	if err != nil {
-		log.Fatalf("Could not delete the book: %v", err)
-	}
-	fmt.Println("Result is: ")
-	fmt.Println(result.String())
 
 	/* load CSV*/
-	actionPerformed("csv")
+	actionPerformed("load CSV")
 	readData("books.csv")
+	showLoadedBookdFromCSV()
+	/*Add books from csv*/
+	addBooks(conexion, ctx)
+	/*Update a book*/
+	updateBook(conexion, ctx)
+	/*Delete a book*/
+	deleteBook(conexion, ctx, bookIDs[0])
+
+}
+
+func showLoadedBookdFromCSV() {
+	for _, book := range books {
+		fmt.Println(book)
+	}
+}
+func addBooks(c booksapp.BookInfoClient, ctx context.Context) {
+	actionPerformed("Add books from csv")
+
 	for _, book := range books {
 
 		r, err := c.AddBook(ctx, &pb.Book{
@@ -98,12 +64,56 @@ func main() {
 			log.Fatalf("Could not add book: %v", err)
 		}
 		bookIDs = append(bookIDs, r.Value)
+		fmt.Println(r.Value)
 	}
-	fmt.Println(bookIDs)
 }
 
-func addBoocks() {
+func updateBook(c booksapp.BookInfoClient, ctx context.Context) {
+	bookid := bookIDs[0]
+	/*UPDATE*/
+	actionPerformed("UPDATE BOOK")
+	fmt.Println("original:")
+	getBook(c, ctx, bookid)
+	bookData := &pb.Book{
+		Id:        "1",
+		Title:     "UPDATED TITLE",
+		Edition:   "10th",
+		Copyright: "2052",
+		Language:  "ESPANOL",
+		Pages:     "800",
+		Author:    "MANRIQUE",
+		Publisher: "MANRIQUE"}
+	idToUpdate := &pb.BookID{Value: bookid}
+	bkUpdate := &pb.BookUpdate{Update: bookData, Id: idToUpdate}
 
+	_, err := c.UpdateBook(ctx, bkUpdate)
+	if err != nil {
+		log.Fatalf("Could not get book: %v", err)
+	}
+	fmt.Println("updated:")
+	getBook(c, ctx, bookid)
+
+}
+
+func deleteBook(c booksapp.BookInfoClient, ctx context.Context, bookid string) {
+	/*DELETE*/
+	actionPerformed("DELETE BOOK")
+	result, err := c.DeleteBook(ctx, &pb.BookID{Value: bookid})
+	if err != nil {
+		log.Fatalf("Could not delete the book: %v", err)
+	}
+	fmt.Println("Boock to delete")
+	fmt.Println(bookid)
+	fmt.Println(result.String())
+}
+
+func getBook(c booksapp.BookInfoClient, ctx context.Context, id string) {
+
+	book1, err := c.GetBook(ctx, &pb.BookID{Value: id})
+	if err != nil {
+		log.Fatalf("Could not get book: %v", err)
+	}
+	fmt.Println(book1.String())
 }
 
 func actionPerformed(title string) {
