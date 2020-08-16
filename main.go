@@ -3,13 +3,14 @@ package main
 import (
 	"log"
 	"net"
+	"os"
 
 	pb "github.com/Mnarique217/go-api/booksapp"
 	"google.golang.org/grpc"
 )
 
 func main() {
-	port := "8080" //os.Getenv("PORT")
+	port := os.Getenv("PORT")
 	lis, err := net.Listen("tcp", ":"+port)
 	if err != nil {
 		log.Fatalf("failed to listen: %v", err)
