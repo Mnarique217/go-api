@@ -1,26 +1,16 @@
 package main
 
 import (
-	"log"
-	"net"
-
-	pb "github.com/Mnarique217/go-api/booksapp"
-	"google.golang.org/grpc"
+    "fmt"
+    "net/http"
+    "os"
 )
 
+func handler(writer http.ResponseWriter, request *http.Request) {
+    fmt.Fprintf(writer, "Hello World, %s!", request.URL.Path[1:])
+}
+
 func main() {
-	port := "8080" //os.Getenv("PORT")
-	lis, err := net.Listen("tcp", ":"+port)
-	if err != nil {
-		log.Fatalf("failed to listen: %v", err)
-	}
-
-	s := grpc.NewServer()
-	pb.RegisterBookInfoServer(s, &server{})
-
-	log.Printf("Starting gRPC listener on port " + port)
-
-	if err := s.Serve(lis); err != nil {
-		log.Fatalf("failed to serve: %v", err)
-	}
+    http.HandleFunc("/", handler)
+    http.ListenAndServe(":"+os.Getenv("PORT"), nil)
 }
