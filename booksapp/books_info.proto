@@ -19,6 +19,11 @@ message Book {
   string Publisher = 8;
 }
 
+message BookUpdate {
+  Book Update = 1;
+  BookID Id = 2;
+}
+
 message Result {
   string Status = 1;
   string Mensaje = 2;
