@@ -1,0 +1,85 @@
+package main
+
+import (
+	"context"
+	"log"
+	"time"
+
+	pb "github.com/Mnarique217/go-api/booksapp"
+	"google.golang.org/grpc"
+)
+
+func main() {
+	address := "localhost:8080" //os.Getenv("ADDRESS")
+	conn, err := grpc.Dial(address, grpc.WithInsecure())
+	if err != nil {
+		log.Fatalf("did not connect: %v", err)
+	}
+	defer conn.Close()
+	c := pb.NewBookInfoClient(conn)
+
+	/*=======================================*/
+	//					add book
+	/*=======================================*/
+	ctx, cancel := context.WithTimeout(context.Background(), time.Second)
+	defer cancel()
+	r, err := c.AddBook(ctx, &pb.Book{
+		Id:        "1",
+		Title:     "Operating System Concepts",
+		Edition:   "9th",
+		Copyright: "2012",
+		Language:  "ENGLISH",
+		Pages:     "976",
+		Author:    "Abraham Silberschatz",
+		Publisher: "John Wiley & Sons"})
+	if err != nil {
+		log.Fatalf("Could not add book: %v", err)
+	}
+
+	/*=======================================*/
+	//					Get book
+	/*=======================================*/
+
+	log.Printf("===============================")
+	log.Printf("GET BOOK BEFORE DELETE ID")
+	log.Printf(r.Value)
+	book1, err := c.GetBook(ctx, &pb.BookID{Value: r.Value})
+	if err != nil {
+		log.Fatalf("Could not get book: %v", err)
+	}
+	log.Printf("Book: ", book1.String())
+	log.Printf(" ")
+	log.Printf(" ")
+	log.Printf(" ")
+	log.Printf("===============================")
+
+	/*=======================================*/
+	//					Delete book
+	/*=======================================*/
+	log.Printf("DELETE BOOK ID")
+	log.Printf(r.Value)
+	result, err := c.DeleteBook(ctx, &pb.BookID{Value: r.Value})
+	if err != nil {
+		log.Fatalf("Could not delete the book: %v", err)
+	}
+	log.Printf("Result is: ", result.String())
+	log.Printf(" ")
+	log.Printf(" ")
+	log.Printf(" ")
+	log.Printf("===============================")
+
+	/*=======================================*/
+	//					Get book
+	/*=======================================*/
+	log.Printf("GET BOOK ID")
+	log.Printf(r.Value)
+	book, err := c.GetBook(ctx, &pb.BookID{Value: r.Value})
+	if err != nil {
+		log.Fatalf("Could not get book: %v", err)
+	}
+	log.Printf("Book: ", book.String())
+	log.Printf(" ")
+	log.Printf(" ")
+	log.Printf(" ")
+	log.Printf("===============================")
+}
