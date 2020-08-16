@@ -27,10 +27,21 @@ func (s *server) AddBook(ctx context.Context, in *pb.Book) (*pb.BookID, error) {
 	return &pb.BookID{Value: in.Id}, status.New(codes.OK, "").Err()
 }
 
-func (s *server) GetBook(ctx context.Context, in *pb.BookID) (*pb.Book, error) {
-	value, exists := s.bookMap[in.Value]
+func (server *server) GetBook(ctx context.Context, in *pb.BookID) (*pb.Book, error) {
+	value, exists := server.bookMap[in.Value]
 	if exists {
 		return value, status.New(codes.OK, "").Err()
 	}
 	return nil, status.Errorf(codes.NotFound, "Book does not exist.", in.Value)
+}
+
+func (s *server) DeleteBook(ctx context.Context, in *pb.BookID) (*pb.Result, error) {
+	value, exists := s.bookMap[in.Value]
+	if exists {
+		//delete(s.bookMap, in.Value)
+		return value, status.New(codes.OK, "").Err()
+	}
+	//return nil, status.Errorf(codes.NotFound, "Book does not exist.", in.Value)
+	return &pb.Result{status: "success", mensaje: "Eliminado correctamente"}, status.New(codes.OK, "").Err()
+
 }
