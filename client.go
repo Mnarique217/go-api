@@ -41,7 +41,14 @@ func main() {
 	/*Delete a book*/
 	deleteBook(conexion, ctx, bookIDs[0])
 	/*get all books*/
-	getAll(conexion, ctx)
+	actionPerformed("Read all books")
+	for i := 1; i < len(bookIDs); i++ {
+		book1, err := conexion.GetBook(ctx, &pb.BookID{Value: bookIDs[i]})
+		if err != nil {
+			log.Fatalf("Could not delete the book: %v", err)
+		}
+		fmt.Println(book1.String())
+	}
 
 }
 
@@ -121,8 +128,8 @@ func getBook(c booksapp.BookInfoClient, ctx context.Context, id string) {
 }
 func getAll(c booksapp.BookInfoClient, ctx context.Context) {
 	actionPerformed("Read all books")
-	for i := 1; i < len(bookIDs)-1; i++ {
-		book1, err := c.GetBook(ctx, &pb.BookID{Value: bookIDs[i]})
+	for _, id := range bookIDs {
+		book1, err := c.GetBook(ctx, &pb.BookID{Value: id})
 		if err != nil {
 			log.Fatalf("Could not delete the book: %v", err)
 		}
