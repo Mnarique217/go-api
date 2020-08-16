@@ -2,25 +2,32 @@ package main
 
 import (
 	"log"
-	"net"
-
-	pb "github.com/Mnarique217/go-api/booksapp"
-	"google.golang.org/grpc"
+	"net/http"
+	"os"
 )
 
-func main() {
-	port := "8080" //os.Getenv("PORT")
-	lis, err := net.Listen("tcp", ":"+port)
+func handler(writer http.ResponseWriter, request *http.Request) {
+	var err error
+	readData("books.csv")
+	switch request.Method {
+	case "GET":
+		err = handleGet(writer, request)
+	case "POST":
+		err = handlePost(writer, request)
+	case "PUT":
+		err = handlePut(writer, request)
+	case "DELETE":
+		err = handleDelete(writer, request)
+	}
+	log.Println("Write to csv")
+	writeData("books.csv")
 	if err != nil {
-		log.Fatalf("failed to listen: %v", err)
+		http.Error(writer, err.Error(), http.StatusInternalServerError)
+		return
 	}
+}
 
-	s := grpc.NewServer()
-	pb.RegisterBookInfoServer(s, &server{})
-
-	log.Printf("Starting gRPC listener on port " + port)
-
-	if err := s.Serve(lis); err != nil {
-		log.Fatalf("failed to serve: %v", err)
-	}
+func main() {
+	http.HandleFunc("/book/", handler)
+	http.ListenAndServe(":"+os.Getenv("PORT"), nil)
 }
