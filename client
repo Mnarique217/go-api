@@ -2,13 +2,18 @@ package main
 
 import (
 	"context"
+	"encoding/csv"
 	"fmt"
 	"log"
+	"os"
 	"time"
 
 	pb "github.com/Mnarique217/go-api/booksapp"
 	"google.golang.org/grpc"
 )
+
+var books []Book
+var bookIDs []string
 
 func main() {
 	address := "localhost:8080" //os.Getenv("ADDRESS")
@@ -34,8 +39,7 @@ func main() {
 	if err != nil {
 		log.Fatalf("Could not add book: %v", err)
 	}
-	fmt.Println("Result is: ")
-	fmt.Println(r.String())
+	bookIDs = append(bookIDs, r.Value)
 
 	/*UPDATE*/
 	actionPerformed("UPDATE BOOK")
@@ -76,6 +80,30 @@ func main() {
 	fmt.Println("Result is: ")
 	fmt.Println(result.String())
 
+	/* load CSV*/
+	actionPerformed("csv")
+	readData("books.csv")
+	for _, book := range books {
+
+		r, err := c.AddBook(ctx, &pb.Book{
+			Id:        book.Id,
+			Title:     book.Title,
+			Edition:   book.Edition,
+			Copyright: book.Copyright,
+			Language:  book.Language,
+			Pages:     book.Pages,
+			Author:    book.Author,
+			Publisher: book.Publisher})
+		if err != nil {
+			log.Fatalf("Could not add book: %v", err)
+		}
+		bookIDs = append(bookIDs, r.Value)
+	}
+	fmt.Println(bookIDs)
+}
+
+func addBoocks() {
+
 }
 
 func actionPerformed(title string) {
@@ -83,4 +111,48 @@ func actionPerformed(title string) {
 	fmt.Println("=======================================")
 	fmt.Println("               ", title, "             ")
 	fmt.Println("=======================================")
+}
+
+type Book struct {
+	Id        string `json:"id"`
+	Title     string `json:"title"`
+	Edition   string `json:"edition"`
+	Copyright string `json:"copyright"`
+	Language  string `json:"language"`
+	Pages     string `json:"pages"`
+	Author    string `json:"author"`
+	Publisher string `json:"publisher"`
+}
+
+func checkError(message string, err error) {
+	if err != nil {
+		log.Fatal(message, err)
+	}
+}
+
+func readData(filePath string) {
+	file, err1 := os.Open(filePath)
+	checkError("Unable to read input file "+filePath, err1)
+	defer file.Close()
+
+	csvReader := csv.NewReader(file)
+	records, err2 := csvReader.ReadAll()
+	checkError("Unable to parse file as CSV for "+filePath, err2)
+	defer file.Close()
+
+	books = []Book{}
+
+	for _, record := range records {
+		book := Book{
+			Id:        record[0],
+			Title:     record[1],
+			Edition:   record[2],
+			Copyright: record[3],
+			Language:  record[4],
+			Pages:     record[5],
+			Author:    record[6],
+			Publisher: record[7]}
+		books = append(books, book)
+	}
+	file.Close()
 }
