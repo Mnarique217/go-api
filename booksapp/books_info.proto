@@ -20,8 +20,8 @@ message Book {
 }
 
 message Result {
-  string status = 1;
-  string mensaje = 2;
+  string Status = 1;
+  string Mensaje = 2;
 }
 
 message BookID {
