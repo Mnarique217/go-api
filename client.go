@@ -34,10 +34,14 @@ func main() {
 	showLoadedBookdFromCSV()
 	/*Add books from csv*/
 	addBooks(conexion, ctx)
+	/*get all books*/
+	getAll(conexion, ctx)
 	/*Update a book*/
 	updateBook(conexion, ctx)
 	/*Delete a book*/
 	deleteBook(conexion, ctx, bookIDs[0])
+	/*get all books*/
+	getAll(conexion, ctx)
 
 }
 
@@ -114,6 +118,16 @@ func getBook(c booksapp.BookInfoClient, ctx context.Context, id string) {
 		log.Fatalf("Could not get book: %v", err)
 	}
 	fmt.Println(book1.String())
+}
+func getAll(c booksapp.BookInfoClient, ctx context.Context) {
+	actionPerformed("Read all books")
+	for i := 1; i < len(bookIDs)-1; i++ {
+		book1, err := c.GetBook(ctx, &pb.BookID{Value: bookIDs[i]})
+		if err != nil {
+			log.Fatalf("Could not delete the book: %v", err)
+		}
+		fmt.Println(book1.String())
+	}
 }
 
 func actionPerformed(title string) {
