@@ -3,7 +3,7 @@ package main
 import (
 	"context"
 
-	pb "github.com/arce/gowebservices/booksapp"
+	pb "github.com/Mnarique217/go-api"
 	"github.com/gofrs/uuid"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
