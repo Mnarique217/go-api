@@ -73,7 +73,6 @@ func AuthorAuthorIdPut(w http.ResponseWriter, r *http.Request) {
 	authorRef.Genere = isValidUpdate(authorRef.Genere, author.Genere)
 	authorRef.Birth = isValidUpdate(authorRef.Birth, author.Birth)
 	authorRef.BookIds = author.BookIds
-
 	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
 	w.WriteHeader(http.StatusOK)
 }
@@ -87,5 +86,31 @@ func AuthorPost(w http.ResponseWriter, r *http.Request) {
 	}
 	authors = append(authors, author)
 	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
+	w.WriteHeader(http.StatusOK)
+}
+
+func AuthorAuthorIdBooksGet(w http.ResponseWriter, r *http.Request) {
+	dir := path.Dir(r.URL.Path)
+	id := path.Base(dir)
+	i := findAuthor(id)
+	if i == -1 {
+		return
+	}
+	author := &authors[i]
+
+	var response []Book
+
+	for _, bkId := range author.BookIds {
+		j := find(bkId)
+		if j == -1 {
+			return
+		}
+		response = append(response, books[j])
+	}
+
+	dataJson, _ := json.Marshal(books)
+
+	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
+	w.Write(dataJson)
 	w.WriteHeader(http.StatusOK)
 }

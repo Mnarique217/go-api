@@ -20,7 +20,7 @@ import (
 
 var publishers = []Publisher{
 	Publisher{PublisherId: "Publisher1", Name: "Publisher1", Country: "Publisher1", Founded: "Publisher1", Genere: "Publisher1", BookIds: []string{"Book1"}},
-	Publisher{PublisherId: "Publisher2", Name: "Publisher2", Country: "Publisher2", Founded: "Publisher2", Genere: "Publisher2", BookIds: []string{"Book2"}},
+	Publisher{PublisherId: "Publisher2", Name: "Publisher2", Country: "Publisher2", Founded: "Publisher2", Genere: "Publisher2", BookIds: []string{"Book1"}},
 }
 
 func findPublisher(x string) int {
@@ -88,5 +88,31 @@ func PublisherPublisherIdPut(w http.ResponseWriter, r *http.Request) {
 	publisherRef.Genere = isValidUpdate(publisherRef.Genere, publisher.Genere)
 	publisherRef.BookIds = publisher.BookIds
 	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
+	w.WriteHeader(http.StatusOK)
+}
+
+func PublisherPublisherIdBooksGet(w http.ResponseWriter, r *http.Request) {
+	dir := path.Dir(r.URL.Path)
+	id := path.Base(dir)
+	i := findPublisher(id)
+	if i == -1 {
+		return
+	}
+	publisher := &publishers[i]
+
+	var response []Book
+
+	for _, bkId := range publisher.BookIds {
+		j := find(bkId)
+		if j == -1 {
+			return
+		}
+		response = append(response, books[j])
+	}
+
+	dataJson, _ := json.Marshal(books)
+
+	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
+	w.Write(dataJson)
 	w.WriteHeader(http.StatusOK)
 }

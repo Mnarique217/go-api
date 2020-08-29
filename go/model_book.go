@@ -9,6 +9,7 @@
 package swagger
 
 type Book struct {
+
 	BookId string `json:"bookId,omitempty"`
 
 	Title string `json:"title,omitempty"`

@@ -20,7 +20,7 @@ import (
 var books = []Book{
 	Book{BookId: "Book1", Title: "Operating System Concepts", Edition: "9th",
 		Copyright: "2012", Language: "ENGLISH", Pages: "976",
-		AuthorsIds: []string{"Author1", "Author2"}, PublishersIds: []string{"Publisher1", "Publisher2"}},
+		AuthorsIds: []string{"author"}, PublishersIds: []string{"Publisher1"}},
 }
 
 func find(x string) int {
@@ -93,5 +93,57 @@ func BooksPost(w http.ResponseWriter, r *http.Request) {
 	}
 	books = append(books, book)
 	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
+	w.WriteHeader(http.StatusOK)
+}
+
+func BooksBookIdAuthorsGet(w http.ResponseWriter, r *http.Request) {
+	dir := path.Dir(r.URL.Path)
+	id := path.Base(dir)
+	i := find(id)
+	if i == -1 {
+		return
+	}
+	book := &books[i]
+
+	var response []Author
+
+	for _, bkId := range book.AuthorsIds {
+		j := findAuthor(bkId)
+		if j == -1 {
+			return
+		}
+		response = append(response, authors[j])
+	}
+
+	dataJson, _ := json.Marshal(books)
+
+	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
+	w.Write(dataJson)
+	w.WriteHeader(http.StatusOK)
+}
+
+func BooksBookIdPublishersGet(w http.ResponseWriter, r *http.Request) {
+	dir := path.Dir(r.URL.Path)
+	id := path.Base(dir)
+	i := find(id)
+	if i == -1 {
+		return
+	}
+	book := &books[i]
+
+	var response []Publisher
+
+	for _, bkId := range book.PublishersIds {
+		j := findPublisher(bkId)
+		if j == -1 {
+			return
+		}
+		response = append(response, publishers[j])
+	}
+
+	dataJson, _ := json.Marshal(books)
+
+	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
+	w.Write(dataJson)
 	w.WriteHeader(http.StatusOK)
 }

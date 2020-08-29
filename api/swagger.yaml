@@ -71,6 +71,42 @@ paths:
       responses:
         "200":
           description: OK
+  /books/{bookId}/authors:
+    get:
+      summary: Returns a book by ID.
+      parameters:
+      - name: bookId
+        in: path
+        required: true
+        style: simple
+        explode: false
+        schema:
+          type: string
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Author'
+  /books/{bookId}/publishers:
+    get:
+      summary: Returns a book by ID.
+      parameters:
+      - name: bookId
+        in: path
+        required: true
+        style: simple
+        explode: false
+        schema:
+          type: string
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Publisher'
   /author/{authorId}:
     get:
       summary: Returns an author by ID.
@@ -135,6 +171,24 @@ paths:
       responses:
         "200":
           description: OK
+  /author/{authorId}/books:
+    get:
+      summary: Returns an author by ID.
+      parameters:
+      - name: authorId
+        in: path
+        required: true
+        style: simple
+        explode: false
+        schema:
+          type: string
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Author'
   /publisher/{publisherId}:
     get:
       summary: Returns an Publisher by ID.
@@ -199,6 +253,24 @@ paths:
       responses:
         "200":
           description: OK
+  /publisher/{publisherId}/books:
+    get:
+      summary: Returns an Publisher by ID.
+      parameters:
+      - name: publisherId
+        in: path
+        required: true
+        style: simple
+        explode: false
+        schema:
+          type: string
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Publisher'
 components:
   schemas:
     Book:
