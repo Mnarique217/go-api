@@ -1,5 +1,5 @@
-module example.com
-require github.com/gorilla/mux v1.8.0
+module github.com/Mnarique217/go-api
+
 go 1.14
 
-
+require github.com/gorilla/mux v1.8.0
