@@ -9,7 +9,6 @@
 package swagger
 
 type Publisher struct {
-
 	PublisherId string `json:"publisherId,omitempty"`
 
 	BookIds []string `json:"bookIds,omitempty"`

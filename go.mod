@@ -1,4 +1,4 @@
-module github.com/Mnarique217/go-api
+module example.com
 
 go 1.14
 
