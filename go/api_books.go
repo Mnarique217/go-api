@@ -115,7 +115,7 @@ func BooksBookIdAuthorsGet(w http.ResponseWriter, r *http.Request) {
 		response = append(response, authors[j])
 	}
 
-	dataJson, _ := json.Marshal(books)
+	dataJson, _ := json.Marshal(response)
 
 	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
 	w.Write(dataJson)
@@ -141,7 +141,7 @@ func BooksBookIdPublishersGet(w http.ResponseWriter, r *http.Request) {
 		response = append(response, publishers[j])
 	}
 
-	dataJson, _ := json.Marshal(books)
+	dataJson, _ := json.Marshal(response)
 
 	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
 	w.Write(dataJson)
