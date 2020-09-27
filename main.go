@@ -13,12 +13,9 @@ func main() {
 	logger := log.NewLogfmtLogger(os.Stderr)
 
 	r := mux.NewRouter()
-
+	/* =============BOOKS================= */
 	var svc BookService
 	svc = NewService(logger)
-
-	// svc = loggingMiddleware{logger, svc}
-	// svc = instrumentingMiddleware{requestCount, requestLatency, countResult, svc}
 
 	CreateBookHandler := httptransport.NewServer(
 		makeCreateBookEndpoint(svc),
@@ -40,13 +37,44 @@ func main() {
 		decodeUpdateBookRequest,
 		encodeResponse,
 	)
-	http.Handle("/", r)
+
 	http.Handle("/book", CreateBookHandler)
 	http.Handle("/book/update", UpdateBookHandler)
 	r.Handle("/book/{bookid}", GetByBookIdHandler).Methods("GET")
 	r.Handle("/book/{bookid}", DeleteBookHandler).Methods("DELETE")
 
-	// http.Handle("/metrics", promhttp.Handler())
+	/* =============Authors================= */
+	var svcAuthor AuthorService
+	svcAuthor = NewServiceAuthor(logger)
+
+	CreateAuthorHandler := httptransport.NewServer(
+		makeCreateAuthorEndpoint(svcAuthor),
+		decodeCreateAuthorRequest,
+		encodeResponse,
+	)
+
+	GetByAuthorIdHandler := httptransport.NewServer(
+		makeGetAuthorByIdEndpoint(svcAuthor),
+		decodeGetAuthorByIdRequest,
+		encodeResponse,
+	)
+	DeleteAuthorHandler := httptransport.NewServer(
+		makeDeleteAuthorEndpoint(svcAuthor),
+		decodeDeleteAuthorRequest,
+		encodeResponse,
+	)
+	UpdateAuthorHandler := httptransport.NewServer(
+		makeUpdateAuthorendpoint(svcAuthor),
+		decodeUpdateAuthorRequest,
+		encodeResponse,
+	)
+
+	http.Handle("/author", CreateAuthorHandler)
+	http.Handle("/author/update", UpdateAuthorHandler)
+	r.Handle("/author/{authorid}", GetByAuthorIdHandler).Methods("GET")
+	r.Handle("/author/{authorid}", DeleteAuthorHandler).Methods("DELETE")
+
+	http.Handle("/", r)
 	logger.Log("msg", "HTTP", "addr", ":"+os.Getenv("PORT"))
 	logger.Log("err", http.ListenAndServe(":8080", nil))
 }
